@@ -2,7 +2,7 @@
 use strict;
 use File::Basename          qw< dirname >;
 use File::Spec::Functions   qw< rel2abs >;
-use lib dirname(__FILE__) . '/../inc';   # doesn't work from blib!!
+use lib dirname(__FILE__) . '/../inc';
 
 use MyTest  qw< plan Okay SkipIf Lives Dies >;
 

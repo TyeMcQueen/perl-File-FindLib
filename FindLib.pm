@@ -11,7 +11,7 @@ BEGIN {
     $VERSION = 0.001_002;
 }
 
-return 1;   # No run-time code below; just subs and maybe BEGIN blocks
+return 1;   # No run-time code below; just 'sub's and maybe BEGIN blocks
 
 
 sub import {
@@ -79,9 +79,10 @@ Or
 =head1 DESCRIPTION
 
 File::FindLib starts in the directory where your script (or library) is
-located and looks for the named file or directory.  If it isn't found, then
-it looks in the parent directory and continues moving up parent directories
-until it finds it or until there is not another parent directory.
+located and looks for the file or directory whose name you pass in.  If it
+isn't found, then FindLib looks in the parent directory and continues moving
+up parent directories until it finds it or until there is not another parent
+directory.
 
 If it finds the named path and it is a directory, then it prepends it to
 C<@INC>.  That is,
@@ -93,11 +94,11 @@ is roughly equivalent to:
     use File::Basename qw< dirname >;
     use lib dirname(__FILE__) . '/../../../lib';
 
-except you don't have to know how many '../' to include and it adjusts
+except you don't have to know how many '../'s to include and it adjusts
 if __FILE__ is a symbolic link.
 
 If it finds the named path and it is a file, then it loads the Perl code
-stored that file.  That is,
+stored in that file.  That is,
 
     use File::FindLib 'lib/MyCorp/Setup.pm';
 
@@ -108,10 +109,10 @@ is roughly equivalent to:
         require dirname(__FILE__) . '/../../../lib/MyCorp/Setup.pm';
     }
 
-except you don't have to know how many '../' to include (and it adjusts if
+except you don't have to know how many '../'s to include (and it adjusts if
 __FILE__ is a symbolic link).
 
-=head1 MOTIVATION
+=head2 MOTIVATION
 
 It is common to have a software product that gets deployed as a tree
 of directories containing commands (scripts) and/or test scripts in
@@ -170,7 +171,7 @@ where TestEnv.pm might start with:
 And you don't have to worry about having to update a script if it gets
 moved to a different point in the deployment directory tree.
 
-=head1 SYMBOLIC LINKS
+=head2 SYMBOLIC LINKS
 
 If the calling script/library was loaded via a symbolic link (if
 C<-l __FILE__> is true inside the calling code), then File::FindLib will
@@ -195,13 +196,18 @@ And the following command produces the following output:
     use File::FindLib 'lib/Setup.pm';
     $
 
-Then File::FindLib will search for:
+Then File::FindLib will do:
 
-    /site/mycorp/widget/bin/lib/Setup.pm
-    /site/mycorp/widget/lib/Setup.pm
-    /site/mycorp/lib/Setup.pm
-    /site/lib/Setup.pm
-    /lib/Setup.pm
+    See that it was called from /etc/init.d/widget.
+    See that this is a symbolic link.
+    Act like it was called from /site/mycorp/widget/bin/init-main.
+    (Ignore that this is another symbolic link.)
+    Search for:
+        /site/mycorp/widget/bin/lib/Setup.pm
+        /site/mycorp/widget/lib/Setup.pm
+        /site/mycorp/lib/Setup.pm
+        /site/lib/Setup.pm
+        /lib/Setup.pm
 
 Only the first symbolic link that we mentioned is noticed.
 
@@ -222,8 +228,8 @@ If you instead made a hard link:
 then /etc/init.d/widget would also be a symbolic link to
 /site/mycorp/widget/bin/init-main which would surely work better.
 
-So future versions of File::FindLib may notice more cases of symbolic links
-or provide options for controlling which symbolic links to notice.
+So future versions of File::FindLib may notice more cases of symbolic
+links or provide options for controlling which symbolic links to notice.
 
 =head1 PLANS
 
