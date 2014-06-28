@@ -264,6 +264,41 @@ then /etc/init.d/widget would also be a symbolic link to
 So future versions of File::FindLib may notice more cases of symbolic
 links or provide options for controlling which symbolic links to notice.
 
+=head2 %INC
+
+The code:
+
+    use File::FindLib 'lib/MyCorp/Setup.pm';
+
+is more accurately approximated as:
+
+    use File::Basename qw< dirname >;
+    BEGIN {
+        my $path= dirname(__FILE__) . '/../../../lib/MyCorp/Setup.pm';
+        require $path;
+        $INC{'MyCorp/Setup.pm'} ||= $INC{$path};
+    }
+
+The setting of C<$INC{'MyCorp/Setup.pm'}> is so that:
+
+    use File::FindLib 'lib/MyCorp/Setup.pm';
+    ...
+    use MyCorp::Setup;
+
+doesn't try to load the MyCorp::Setup module twice.
+
+Though, this is only done if lib/MyCorp/Setup.pm defines a MyCorp::Setup
+package... and C<$INC{'MyCorp/Setup.pm'}> isn't already set and there is
+no lib::MyCorp::Setup package defined.  See the source code if you have
+to know every detail of the heuristics used, though misfires are unlikely
+(especially since module names are usually capitalized while library
+subdirectory names usually are not).
+
+Even this problem case is unlikely and the consequences of loading the same
+module twice are often just harmless warnings, if that.
+
+So this detail will not matter most of the time.
+
 =head1 PLANS
 
 I'd like to support a more powerful interface.  For example:
