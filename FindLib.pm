@@ -68,26 +68,26 @@ sub LookUp {
 # so "use File::FindLib 'lib/Mod.pm'; use Mod;" doesn't load it twice.
 
 sub UpdateInc {
-    my( $path )= @_;
-    my $base= $path;
-    return 0
+    my( $path )= @_;    # Path to module file.
+    my $base= $path;    # Path minus ".pm"; parts that go into package name.
+    return 0            # If no .pm on end, "use Bareword" wouldn't find it.
         if  $base !~ s/[.]pm$//;
-    my @parts= grep length $_, splitdir( $base );
-    my @names;
-    unshift @names, pop @parts
-        while  @parts  &&  $parts[0] =~ /^\w+$/;
+    my @parts= grep length $_, splitdir( $base );   # Potential pkg name parts.
+    my @names;              # Above minus leading parts that aren't barewords.
+    unshift @names, pop @parts              # Include last part until find...
+        while  @parts  &&  $parts[0] =~ /^\w+$/;    # ...a non-bareword.
  EDGE:
-    for my $o ( 0 .. $#names ) {
-        next
+    for my $o ( 0 .. $#names ) {    # Strip shortest prefix that leaves a pkg.
+        next            # "use Foo::123" works but "use 123::Foo" wouldn't.
             if  $names[$o] =~ /^[0-9]/;
         my $stab= \%main::;
         my @pkg= @names[ $o..$#names ];
-        for my $name ( @pkg ) {
+        for my $name ( @pkg ) {         # Defined package? No autovivification.
             $stab= $stab->{$name.'::'};
             next EDGE
                 if  ! $stab  ||  'GLOB' ne ref \$stab;
         }
-        my $mod= join '/', @pkg;    # @INC always uses '/'; no catdir()
+        my $mod= join '/', @pkg;        # @INC always uses '/'; no catdir()
         $INC{"$mod.pm"} ||= $INC{$path};
         return 1;
     }
