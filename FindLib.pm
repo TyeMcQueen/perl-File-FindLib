@@ -2,13 +2,13 @@ package File::FindLib;
 use strict;
 
 use File::Basename          qw< dirname >;
-use File::Spec::Functions   qw< rel2abs catdir >;
+use File::Spec::Functions   qw< rel2abs catdir splitdir >;
 
 use vars                    qw< $VERSION >;
 
 my $Pkg= __PACKAGE__;   # Our class name (convenient to use in messages)
 BEGIN {
-    $VERSION = 0.001_002;
+    $VERSION= 0.001_002;
 }
 
 return 1;   # No run-time code below; just 'sub's and maybe BEGIN blocks
@@ -52,13 +52,46 @@ sub LookUp {
                 lib->import( $path );
                 return $path;
             }
-            return require $path;
+            my $ret= require $path;
+            UpdateInc( $path );
+            return $ret;
         }
         my $up= dirname( $dir );
         die "$Pkg can't find $find in ancestor directory of $from.\n"
             if  $up eq $dir;
         $dir= $up;
     }
+}
+
+
+# Set $INC{'My/Mod.pm'} after loading 'lib/My/Mod.pm';
+# so "use File::FindLib 'lib/Mod.pm'; use Mod;" doesn't load it twice.
+
+sub UpdateInc {
+    my( $path )= @_;
+    my $base= $path;
+    return 0
+        if  $base !~ s/[.]pm$//;
+    my @parts= grep length $_, splitdir( $base );
+    my @names;
+    unshift @names, pop @parts
+        while  @parts  &&  $parts[0] =~ /^\w+$/;
+ EDGE:
+    for my $o ( 0 .. $#names ) {
+        next
+            if  $names[$o] =~ /^[0-9]/;
+        my $stab= \%main::;
+        my @pkg= @names[ $o..$#names ];
+        for my $name ( @pkg ) {
+            $stab= $stab->{$name.'::'};
+            next EDGE
+                if  ! $stab  ||  'GLOB' ne ref \$stab;
+        }
+        my $mod= join '/', @pkg;    # @INC always uses '/'; no catdir()
+        $INC{"$mod.pm"} ||= $INC{$path};
+        return 1;
+    }
+    return 0;
 }
 
 
