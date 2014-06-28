@@ -8,7 +8,7 @@ use MyTest  qw< plan Okay SkipIf Lives Dies >;
 
 BEGIN {
     plan(
-        tests => 5,
+        tests => 7,
         # todo => [ 2, 3 ],
     );
 
@@ -22,3 +22,6 @@ Okay( rel2abs(dirname(__FILE__)), $INC[0], 'Unshifted t dir onto @INC' );
 Okay( !1, ! File::FindLib->import('t/FindMe.pm'),
     'Import FindMe should return true value' );
 Okay( $FindMe::VERSION, $File::FindLib::VERSION, 'Found right FindMe' );
+Okay( 1, require FindMe, 'require FindMe gives 1' );
+{ no warnings 'once';
+Okay( 1, $FindMe::loaded, 'FindMe loaded once' ); }
