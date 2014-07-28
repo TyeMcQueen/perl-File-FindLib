@@ -75,7 +75,7 @@ sub UpdateInc {
     my @parts= grep length $_, splitdir( $base );   # Potential pkg name parts.
     my @names;              # Above minus leading parts that aren't barewords.
     unshift @names, pop @parts              # Include last part until find...
-        while  @parts  &&  $parts[0] =~ /^\w+$/;    # ...a non-bareword.
+        while  @parts  &&  $parts[-1] =~ /^\w+$/;   # ...a non-bareword.
  EDGE:
     for my $o ( 0 .. $#names ) {    # Strip shortest prefix that leaves a pkg.
         next            # "use Foo::123" works but "use 123::Foo" wouldn't.
