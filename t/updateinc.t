@@ -8,7 +8,7 @@ use MyTest  qw< plan Okay SkipIf Lives Dies >;
 
 use File::FindLib();
 
-plan( tests => 6 );
+plan( tests => 7 );
 
 my $path = 'word/not-word/one1/2two/tre_3/4for/5.pm';
 $INC{$path} = "/root/$path";
@@ -51,4 +51,7 @@ Okay( $r, "@set", 'what is new' );
 
 
 # Skip module not ending in ".pm":
-Okay( 0, UpdateInc('foo/bar.pl'), 'claims no update' );
+Okay( 0, UpdateInc('foo/bar.pl'), 'claims no update for .pl' );
+
+# Return 0 if no match found:
+Okay( 0, UpdateInc('Foo/Bar.pm'), 'claims no update for no match' );
