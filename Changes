@@ -1,5 +1,8 @@
 Revision history for Perl extension File::FindLib
 
+0.001_004   2014-07-27
+  - Fix bug in UpdateInc() [s/0/-1/].
+
 0.001_003   2014-07-26
   - Add (un)license
 
