@@ -59,8 +59,8 @@ if( maybe_david() ) {
     Okay( $VER,  $v, "Found right version from t/init/link" );
     Okay( '1 1', $l, "Sub::Find loaded once" );
 } else {
-    skip( 'No symlinks' );
-    skip( 'No symlinks' );
+    skip( 'No symlinks' )
+        for 1,2;
 }
 
 # TODO:
